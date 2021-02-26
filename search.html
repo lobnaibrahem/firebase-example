@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> search </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item ">
+                  <a class="nav-link" href="department.html"> Department <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="articlue.html"> Article </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#"> search in Articuls </a>
+                  </li>
+            </div>
+          </nav>
+          <br><br>
+          <div class="container">  
+                <label for="inputState"> feild :</label>
+                <select id="fname" class="form-control">
+                    <option> Article name </option>
+                    <option> Article content </option>
+                    <option> Article number of char </option>
+                    <option> Article department </option>
+                </select>
+            
+                <label for="inputState"> comparison :</label>
+                <select id="cname" class="form-control">
+                    <option> == </option>
+                    <option> != </option>
+                    <option> <= </option>
+                    <option> >= </option>
+                    <option> > </option>
+                    <option> < </option>
+                </select>
+
+                <div class="form-group mt-2">
+                    <label for="exampleInputEmail1"> value: </label>
+                    <input type="text" class="form-control"  id="val">
+                  </div>
+                <br><br>
+
+                <button type="button" class="btn btn-primary" onclick="send()"> search </button>
+
+                <br><br>
+
+                <table class="table table-striped" id="data">
+                  <thead>
+                    <tr>
+                      <th scope="col">Article Name</th>
+                      <th scope="col">Article content</th>
+                      <th scope="col">Article Department</th>
+                      <th scope="col"> Edit </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+  
+                  </tbody>
+                </table>
+  
+            </div>
+             
+          <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+              apiKey: "AIzaSyDw9-Vfkj1Cxz9MNDz2tZ1a3uiGCR-wIzY",
+              authDomain: "test-8620a.firebaseapp.com",
+              databaseURL: "https://test-8620a-default-rtdb.firebaseio.com",
+              projectId: "test-8620a",
+              storageBucket: "test-8620a.appspot.com",
+              messagingSenderId: "765555918593",
+              appId: "1:765555918593:web:115ab51f01f91eb6687d00"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+
+            //call firebase firestore
+            var db = firebase.firestore();
+
+            
+
+            function send(){
+
+            db.collection("Articlus").where(
+                $("#fname").children("option:selected").text(),
+                $("#cname").children("option:selected").text(),
+                $("#val").val()
+                ).get()
+            .then(function(data){
+                console.log(data.docs)
+                $("#data>tbody").empty();
+            for (const key in data.docs) {
+                var row = `<tr>
+                        <td>${data.docs[key].data().name}</td>
+                        <td>${data.docs[key].data().content}</td>
+                        <td>${data.docs[key].data().department}</td>
+                        <td>${data.docs[key].data().char}</td>
+                        <td>
+                            <input type="button" class="btn btn-info" value="update" 
+                            onclick="Update(
+                                '${data.docs[key].data().name}',
+                                '${data.docs[key].data().content}',
+                                '${data.docs[key].data().char}',
+                                '${data.docs[key].data().department}',
+                               
+                                )">
+                            <input type="button" class="btn btn-danger" value="delete" onclick="Delete('${data.docs[key].id}')">
+                        </td>
+                    </tr>`;
+                    $("#data>tbody").append(row);
+                // console.log(data.docs[key].data())
+            }
+        })
+        .catch(function(error){console.log(error)})
+
+    }
+          </script>
+    </body>
+</html>

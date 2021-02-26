@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Article </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item ">
+                  <a class="nav-link" href="department.html"> Department <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                  <a class="nav-link" href="#"> Article </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="search.html"> search in Articuls </a>
+                </li>
+            </div>
+          </nav>
+          <br><br>
+          <div class="container">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Article ID :</label>
+                <input type="email" class="form-control" readonly id="ID">
+              </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Article Name :</label>
+                <input type="email" class="form-control" id="Aname">
+              </div>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Article content :</label>
+                <input type="email" class="form-control" id="Acontent">
+              </div>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Article number of char :</label>
+                <input type="number" class="form-control" id="Achar">
+              </div>
+              <div class="form-group col-md-4">
+                <label for="inputState"> Depratment :</label>
+                <select id="Dname" class="form-control">
+
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="send()"> Save </button>
+
+              <br><br>
+
+              <table class="table table-striped" id="data">
+                <thead>
+                  <tr>
+                    <th scope="col">Article Name</th>
+                    <th scope="col">Article content</th>
+                    <th scope="col">Article Department</th>
+                    <th scope="col">Article number of char</th>
+                    <th scope="col"> Edit </th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+
+          </div>
+          <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+              apiKey: "AIzaSyDw9-Vfkj1Cxz9MNDz2tZ1a3uiGCR-wIzY",
+              authDomain: "test-8620a.firebaseapp.com",
+              databaseURL: "https://test-8620a-default-rtdb.firebaseio.com",
+              projectId: "test-8620a",
+              storageBucket: "test-8620a.appspot.com",
+              messagingSenderId: "765555918593",
+              appId: "1:765555918593:web:115ab51f01f91eb6687d00"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+
+            //call firebase firestore
+            var db = firebase.firestore();
+
+          
+              db.collection("department").onSnapshot(function(data){
+                    console.log(data.docs)
+                    for (var val in data.docs) {
+                        console.log(data.docs[val].data())
+                        var option = `
+                        <option>${data.docs[val].data().name}</option>`;
+                    $("#Dname").append(option);
+                }
+                        
+                    });
+
+        db.collection("Articlus").onSnapshot(function(data){
+            $("#data>tbody").empty();
+            for (const key in data.docs) {
+                var row = `<tr>
+                        <td>${data.docs[key].data().name}</td>
+                        <td>${data.docs[key].data().content}</td>
+                        <td>${data.docs[key].data().department}</td>
+                        <td>${data.docs[key].data().char}</td>
+                        <td>
+                            <input type="button" class="btn btn-info" value="update" 
+                            onclick="Update(
+                                '${data.docs[key].data().name}',
+                                '${data.docs[key].data().content}',
+                                '${data.docs[key].data().char}',
+                                '${data.docs[key].data().department}',
+                               
+                                )">
+                            <input type="button" class="btn btn-danger" value="delete" onclick="Delete('${data.docs[key].id}')">
+                        </td>
+                    </tr>`;
+                $("#data>tbody").append(row);
+            }
+        })
+
+        function send()
+        {
+            var ID = $("#ID").val();
+            var Aname = $("#Aname").val();
+            var Acontent = $("#Acontent").val();
+            var dept =$("#Dname").children("option:selected").val();
+            var Achar =$('#Achar').val();
+
+            if(ID == ""){
+                db.collection("Articlus").add({
+                    name:Aname,
+                    content:Acontent,
+                    department:dept,
+                    char:Achar
+                }).then(function(doc){
+                    console.log("New article is added with ID: "+doc.id)
+                }).catch(function(error){
+                    console.log(error)
+                });
+            }
+
+            else{
+                db.collection("Articlus").doc(ID).update({
+                    name:Aname,
+                    content:Acontent,
+                    department:dept,
+                    char:Achar
+                }).then(function(){
+                    console.log("updated successfully")
+                }).catch(function(error){
+                    console.log(error)
+                })
+            }
+        }
+
+        function Update(id,name,cont,char)
+        {
+           $("#ID").val(id);
+           $("#Aname").val(name);
+           $("#Acontent").val(cont);
+           $('#Achar').val(char);
+        }
+
+        function Delete(id){
+            var sure = confirm("Are you sure?");
+            if(sure){
+                db.collection("Articlus").doc(id).delete()
+                .then(function(){console.log("Deleted successfully")})
+                .catch(function(error){console.log(error)})
+            }
+        }
+
+           
+          </script>
+    </body>
+</html>

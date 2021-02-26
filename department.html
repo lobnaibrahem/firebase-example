@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Departments </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+    
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#"> Department <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="articlue.html"> Article </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="search.html"> search in Articuls </a>
+                  </li>
+            </div>
+          </nav>
+          <br><br>
+          <div class="container">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Department ID :</label>
+                <input type="text" class="form-control" readonly id="ID">
+              </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Department Name :</label>
+                <input type="email" class="form-control" id="Dname">
+              </div>
+              <button type="button" class="btn btn-primary" onclick="send()"> Save </button>
+
+              <br><br>
+
+              <table id="Shw" class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Department Name</th>
+                    <th scope="col">Edit</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+          </div>
+
+        <!-- js files -->
+       
+        <script> 
+
+         // Your web app's Firebase configuration
+         var firebaseConfig = {
+              apiKey: "AIzaSyDw9-Vfkj1Cxz9MNDz2tZ1a3uiGCR-wIzY",
+              authDomain: "test-8620a.firebaseapp.com",
+              databaseURL: "https://test-8620a-default-rtdb.firebaseio.com",
+              projectId: "test-8620a",
+              storageBucket: "test-8620a.appspot.com",
+              messagingSenderId: "765555918593",
+              appId: "1:765555918593:web:115ab51f01f91eb6687d00"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+
+           //call firebase firestore
+            var db = firebase.firestore();
+            
+            
+        //listening for realtime updates
+        db.collection("department").onSnapshot(function(data){
+            $("#Shw>tbody").empty();
+            for (const key in data.docs) {
+                console.log(data.docs[key].data().name)
+                var row = `<tr>
+                        <td>${data.docs[key].data().name}</td>
+                        <td>
+                            <input type="button" class="btn btn-info" value="update" 
+                            onclick="Update(
+                                '${data.docs[key].id}',
+                                '${data.docs[key].data().name}'
+                                )">
+                            <input type="button" class="btn btn-danger" value="delete" onclick="Delete('${data.docs[key].id}')">
+                        </td>
+                    </tr>`;
+                $("#Shw>tbody").append(row);
+            }
+        })
+
+        function send()
+        {
+            var ID = $("#ID").val();
+            var Dname = $("#Dname").val();
+            
+
+            if(ID == ""){
+                db.collection("department").add({
+                    name:Dname,
+                }).then(function(doc){
+                    console.log("New department is added with ID: "+doc.id)
+                }).catch(function(error){
+                    console.log(error)
+                });
+            }
+
+            else{
+                db.collection("department").doc(ID).update({
+                    name:Dname,
+                }).then(function(){
+                    console.log("updated successfully")
+                }).catch(function(error){
+                    console.log(error)
+                })
+            }
+        }
+
+        function Update(id,name)
+        {
+            $("#ID").val(id);
+            $("#Dname").val(name);
+            
+        }
+
+        function Delete(id){
+            var sure = confirm("Are you sure?");
+            if(sure){
+                db.collection("department").doc(id).delete()
+                .then(function(){console.log("Deleted successfully")})
+                .catch(function(error){console.log(error)})
+            }
+        }
+
+           
+        </script>
+    </body>
+</html>
